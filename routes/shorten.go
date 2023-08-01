@@ -2,7 +2,10 @@ package routes
 
 import (
 	"time"
+
+	"github.com/asaskevich/govalidator"
 	"github.com/gofiber/fiber/v2"
+	"github.com/yushmanth/url-shortner/helpers"
 )
 
 type request struct{
@@ -27,4 +30,14 @@ func shortenURL(c *fiber.Ctx) error{
 	}
 	
 
+	if !govalidator.IsURL(body.URL){
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error":"Invalid URL"})
+	}
+
+	if !helpers.RemoveDomainError(body.URL){
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error":"Invalid URL"})
+	}
+
+	body.URL = helpers.EnforceHTTP(body.URL)
 }
+
